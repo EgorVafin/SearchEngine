@@ -1,0 +1,32 @@
+package searchengine.model;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "index")
+@Getter
+@Setter
+@NoArgsConstructor
+public class Index {
+
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @ManyToOne
+    @JoinColumn(name = "page_id", nullable = false)
+    private Page page;
+
+    @ManyToOne
+    @JoinColumn(name = "lemma_id", nullable = false)
+    private Lemma lemma;
+
+    @Column(name = "rank", nullable = false)
+    private float rank;
+
+}
