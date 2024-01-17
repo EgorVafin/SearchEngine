@@ -55,7 +55,6 @@ public class SiteParser implements Runnable {
             siteRepository.save(site);
         } finally {
             forkJoinPool.shutdown();
-            System.out.println("FINALLY ---------------------------------------------------");
         }
     }
 

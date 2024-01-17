@@ -15,7 +15,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class HtmlJsoupParser {
 
-
     public Set<String> extractLinks(Document doc, String domain) {
 
         Set<String> childrenList = new HashSet<>();

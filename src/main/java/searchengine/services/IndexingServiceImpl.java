@@ -2,15 +2,12 @@ package searchengine.services;
 
 import org.springframework.stereotype.Service;
 import searchengine.config.SitesList;
-import searchengine.model.Site;
-import searchengine.model.SiteStatus;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 import searchengine.services.parser.IndexStatus;
 import searchengine.services.parser.SiteParser;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
