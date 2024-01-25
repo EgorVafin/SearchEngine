@@ -3,78 +3,66 @@ package searchengine.services.parser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import searchengine.model.Page;
-import searchengine.model.SiteStatus;
+import searchengine.model.Site;
+import searchengine.repository.PageRepository;
+import searchengine.repository.SiteRepository;
 import searchengine.utils.StringUtils;
+import searchengine.utils.Tuple;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
-public class UrlParserTask extends RecursiveTask<UrlParserTaskResult> {
-    private final String url;
-    private final UrlParserContext context;
+public class UrlParserTask extends RecursiveAction {
     private static final int MAX_PAGES_COUNT = 100;
+
+    private final String url;
+    private final Site site;
+    private final IndexStatus indexStatus;
+    private final PageRepository pageRepository;
+    private final SiteRepository siteRepository;
+    private final PageSaver pageSaver;
 
     @SneakyThrows
     @Override
-    protected UrlParserTaskResult compute() {
-        if (!context.getIndexStatus().isIndexing()) {
-            return new UrlParserTaskResult("Индексация остановлена пользователем");
+    protected void compute() {
+        if (!indexStatus.isIndexing()) {
+            return;
         }
 
-        List<Page> visitedLinks = context.getPageRepository()
-                .findAllBySiteAndPath(context.getSite(), removeDomainFromUrl(url, context.getSite().getUrl()));
+        List<Page> visitedLinks = pageRepository
+                .findAllBySiteAndPath(site, removeDomainFromUrl(url, site.getUrl()));
         if (!visitedLinks.isEmpty()) {
-            return null;
+            return;
         }
 
-        int pagesCount = context.getPageRepository().countBySite(context.getSite());
+        int pagesCount = pageRepository.countBySite(site);
         if (pagesCount > MAX_PAGES_COUNT) {
-            return null;
+            return;
         }
 
-        try {
-            TimeUnit.MILLISECONDS.sleep(200);
-            Document doc = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .referrer("http://www.google.com")
-                    .maxBodySize(0)
-                    .get();
+        TimeUnit.MILLISECONDS.sleep(200);
 
-            saveDocument(doc);
-            processDocument(doc);
-            return null;
-        } catch (IOException e) {
-            if (url.equals(context.getSite().getUrl())) {
-                return new UrlParserTaskResult(e.getMessage());
-            } else {
-                int statusCode = e instanceof HttpStatusException ? ((HttpStatusException) e).getStatusCode() : 0;
-                saveErrorPage(statusCode, e.toString());
-                return null;
-            }
+        Tuple<Page, String> pageAndError = pageSaver.savePage(url, site);
+
+        site.setStatusTime(new Date());
+        if(pageAndError.second() != null) {
+            site.setLastError(pageAndError.second());
+        }
+        siteRepository.save(site);
+
+        if(pageAndError.second() == null) {
+            processDocument(pageAndError.first().getContent());
         }
     }
 
-    private void saveErrorPage(int statusCode, String errorMessage) {
-        Page page = new Page();
-        page.setSite(context.getSite());
-        page.setPath(removeDomainFromUrl(url, context.getSite().getUrl()));
-        page.setContent(null);
-        page.setCode(statusCode);
-        context.getPageRepository().save(page);
-
-        context.getSite().setStatusTime(new Date());
-        context.getSite().setLastError(errorMessage);
-        context.getSiteRepository().save(context.getSite());
-    }
 
     private String removeDomainFromUrl(String url, String domain) {
         if (domain.endsWith("/")) {
@@ -88,28 +76,23 @@ public class UrlParserTask extends RecursiveTask<UrlParserTaskResult> {
         return url;
     }
 
-    private void saveDocument(Document doc) {
-        Page page = new Page();
-        page.setSite(context.getSite());
-        page.setPath(removeDomainFromUrl(url, context.getSite().getUrl()));
-        page.setContent(doc.html());
-        page.setCode(200);
-        context.getPageRepository().save(page);
 
-        context.getSite().setStatusTime(new Date());
-        context.getSiteRepository().save(context.getSite());
-    }
-
-    private void processDocument(Document doc) {
+    private void processDocument(String html) {
+        Document doc = Jsoup.parse(html);
         HtmlJsoupParser pageParser = new HtmlJsoupParser();
 
-        Set<String> urlList = pageParser.extractLinks(doc, context.getSite().getUrl());
+        Set<String> urlList = pageParser.extractLinks(doc, site.getUrl());
         if (urlList.isEmpty()) {
             return;
         }
 
         for (String nestedUrl : urlList) {
-            UrlParserTask newTask = new UrlParserTask(nestedUrl, context);
+            UrlParserTask newTask = new UrlParserTask(nestedUrl,
+                    site,
+                    indexStatus,
+                    pageRepository,
+                    siteRepository,
+                    pageSaver);
 
             newTask.fork();
         }

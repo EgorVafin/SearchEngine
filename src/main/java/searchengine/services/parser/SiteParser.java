@@ -14,22 +14,32 @@ import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 public class SiteParser implements Runnable {
-    private final String siteUrl;
     private final String siteName;
+    private final String siteUrl;
     private final PageRepository pageRepository;
     private final SiteRepository siteRepository;
     private final IndexStatus indexStatus;
+    private final PageSaver pageSaver;
+
 
     @SneakyThrows
     public void run() {
         clearDb();
         Site site = createSite();
 
-        UrlParserContext context = new UrlParserContext(site, pageRepository, siteRepository, indexStatus);
         ForkJoinPool forkJoinPool = new ForkJoinPool(4);
         try {
-            UrlParserTaskResult taskResult = forkJoinPool.invoke(new UrlParserTask(site.getUrl(), context));
-            while (true){
+            forkJoinPool.invoke(
+                    new UrlParserTask(
+                            site.getUrl(),
+                            site,
+                            indexStatus,
+                            pageRepository,
+                            siteRepository,
+                            pageSaver
+                    )
+            );
+            while (true) {
                 if (forkJoinPool.getQueuedTaskCount() == 0) {
                     break;
                 } else {
@@ -40,17 +50,17 @@ public class SiteParser implements Runnable {
                 }
             }
 
-            if(taskResult != null){
+            if (!indexStatus.isIndexing()) {
                 site.setStatus(SiteStatus.FAILED);
-                site.setLastError(taskResult.getErrorMessage());
+                site.setLastError("Индексация остановлена пользователем");
             } else {
-                if(!indexStatus.isIndexing()){
+                if (pageRepository.countBySite(site) <= 1) {
                     site.setStatus(SiteStatus.FAILED);
-                    site.setLastError("Индексация остановлена пользователем");
                 } else {
                     site.setStatus(SiteStatus.INDEXED);
                 }
             }
+
             site.setStatusTime(new Date());
             siteRepository.save(site);
         } finally {

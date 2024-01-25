@@ -5,7 +5,9 @@ import searchengine.config.SitesList;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 import searchengine.services.parser.IndexStatus;
+import searchengine.services.parser.PageSaver;
 import searchengine.services.parser.SiteParser;
+import searchengine.services.parser.UrlScraper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,20 +16,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 @Service
-public class IndexingServiceImpl implements IndexingService {
+public class SitesIndexingServiceImpl implements SitesIndexingService {
     private final SitesList sitesList;
     private final SiteRepository siteRepository;
     private final PageRepository pageRepository;
     private final ExecutorService pool;
     private final List<Future> tasks = new ArrayList<>();
     private final IndexStatus indexStatus = new IndexStatus();
+    private final PageSaver pageSaver;
 
 
-    public IndexingServiceImpl(SitesList sitesList, SiteRepository siteRepository, PageRepository pageRepository) {
+    public SitesIndexingServiceImpl(
+            SitesList sitesList,
+            SiteRepository siteRepository,
+            PageRepository pageRepository,
+            PageSaver pageSaver) {
         this.sitesList = sitesList;
         this.siteRepository = siteRepository;
         this.pageRepository = pageRepository;
         this.pool = Executors.newFixedThreadPool(sitesList.getSites().size());
+        this.pageSaver = pageSaver;
     }
 
     @Override
@@ -45,7 +53,8 @@ public class IndexingServiceImpl implements IndexingService {
                     site.getName(),
                     pageRepository,
                     siteRepository,
-                    indexStatus);
+                    indexStatus,
+                    pageSaver);
             Future<?> feature = pool.submit(siteParser);
             tasks.add(feature);
         }

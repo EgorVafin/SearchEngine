@@ -25,7 +25,6 @@ public class LemmaParser {
         return Jsoup.parse(html).text();
     }
 
-
     public Map<String, Integer> parseLemmas(String text) {
         Map<String, Integer> result = new HashMap<>();
 
