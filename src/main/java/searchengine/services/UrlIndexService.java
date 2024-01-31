@@ -43,7 +43,6 @@ public class UrlIndexService {
         }
 
 
-
     }
 
     private searchengine.model.Site findOrCreateSite(Site site) {
