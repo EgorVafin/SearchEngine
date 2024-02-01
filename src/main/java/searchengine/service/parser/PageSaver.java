@@ -1,4 +1,4 @@
-package searchengine.services.parser;
+package searchengine.service.parser;
 
 import lombok.RequiredArgsConstructor;
 import org.jsoup.HttpStatusException;
@@ -6,12 +6,10 @@ import org.springframework.stereotype.Service;
 import searchengine.model.Page;
 import searchengine.model.Site;
 import searchengine.repository.PageRepository;
-import searchengine.repository.SiteRepository;
 import searchengine.utils.StringUtils;
 import searchengine.utils.Tuple;
 
 import java.io.IOException;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor

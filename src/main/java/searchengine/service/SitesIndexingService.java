@@ -1,4 +1,4 @@
-package searchengine.services;
+package searchengine.service;
 
 public interface SitesIndexingService {
     boolean isIndexStarted();

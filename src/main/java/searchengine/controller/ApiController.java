@@ -1,13 +1,13 @@
-package searchengine.controllers;
+package searchengine.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import searchengine.dto.index.IndexingResponse;
 import searchengine.dto.statistics.StatisticsResponse;
-import searchengine.services.SitesIndexingService;
-import searchengine.services.StatisticsService;
-import searchengine.services.UrlIndexService;
+import searchengine.service.SitesIndexingService;
+import searchengine.service.StatisticsService;
+import searchengine.service.UrlIndexService;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package searchengine.services.parser;
+package searchengine.service.parser;
 
 import lombok.Getter;
 import lombok.Setter;

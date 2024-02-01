@@ -1,13 +1,12 @@
-package searchengine.services;
+package searchengine.service;
 
 import org.springframework.stereotype.Service;
 import searchengine.config.SitesList;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
-import searchengine.services.parser.IndexStatus;
-import searchengine.services.parser.PageSaver;
-import searchengine.services.parser.SiteParser;
-import searchengine.services.parser.UrlScraper;
+import searchengine.service.parser.IndexStatus;
+import searchengine.service.parser.PageSaver;
+import searchengine.service.parser.SiteParser;
 
 import java.util.ArrayList;
 import java.util.List;

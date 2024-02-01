@@ -1,4 +1,4 @@
-package searchengine.services.parser;
+package searchengine.service.parser;
 
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.RecursiveAction;
-import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor

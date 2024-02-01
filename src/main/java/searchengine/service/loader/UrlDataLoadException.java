@@ -1,4 +1,4 @@
-package searchengine.services.loader;
+package searchengine.service.loader;
 
 public class UrlDataLoadException extends RuntimeException{
 

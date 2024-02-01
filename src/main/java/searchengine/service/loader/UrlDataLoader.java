@@ -1,4 +1,4 @@
-package searchengine.services.loader;
+package searchengine.service.loader;
 
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
