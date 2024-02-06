@@ -8,6 +8,7 @@ import searchengine.model.Site;
 import searchengine.repository.PageRepository;
 import searchengine.utils.StringUtils;
 import searchengine.utils.Tuple;
+import searchengine.utils.UrlUtils;
 
 import java.io.IOException;
 
@@ -32,7 +33,7 @@ public class PageSaver {
     private Tuple<Page, String> saveErrorPage(int statusCode, String errorMessage, Site site, String url) {
         Page page = new Page();
         page.setSite(site);
-        page.setPath(removeDomainFromUrl(url, site.getUrl()));
+        page.setPath(UrlUtils.removeDomainFromUrl(url, site.getUrl()));
         page.setContent(null);
         page.setCode(statusCode);
         pageRepository.save(page);
@@ -43,7 +44,7 @@ public class PageSaver {
     private Tuple<Page, String> savePage(String html, String url, Site site) {
         Page page = new Page();
         page.setSite(site);
-        page.setPath(removeDomainFromUrl(url, site.getUrl()));
+        page.setPath(UrlUtils.removeDomainFromUrl(url, site.getUrl()));
         page.setContent(html);
         page.setCode(STATUS_CODE_SUCCESS);
         pageRepository.save(page);
@@ -51,14 +52,4 @@ public class PageSaver {
         return new Tuple<>(page, null);
     }
 
-    private String removeDomainFromUrl(String url, String domain) {
-        if (domain.endsWith("/")) {
-            domain = StringUtils.removeLastChar(domain);
-        }
-        if (url.startsWith(domain)) {
-            String substr = url.substring(domain.length());
-            return substr.isEmpty() ? "/" : substr;
-        }
-        return url;
-    }
 }

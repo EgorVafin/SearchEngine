@@ -11,4 +11,9 @@ import java.util.Optional;
 public interface LemmaRepository extends JpaRepository<Lemma, Integer> {
 
     Optional<Lemma> findFirstByLemmaAndSite(String lemma, Site site);
+
+    Optional<Lemma> findById(Integer integer);
+
+    @Override
+    void deleteById(Integer integer);
 }

@@ -18,6 +18,7 @@ import javax.persistence.*;
 //            on delete cascade;
 @Entity
 @Table(name = "page")
+
 @Getter
 @Setter
 @NoArgsConstructor

@@ -5,18 +5,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.stereotype.Component;
 import searchengine.model.Page;
 import searchengine.model.Site;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 import searchengine.utils.StringUtils;
 import searchengine.utils.Tuple;
+import searchengine.utils.UrlUtils;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.TimeUnit;
+
 
 @RequiredArgsConstructor
 public class UrlParserTask extends RecursiveAction {
@@ -37,7 +40,7 @@ public class UrlParserTask extends RecursiveAction {
         }
 
         List<Page> visitedLinks = pageRepository
-                .findAllBySiteAndPath(site, removeDomainFromUrl(url, site.getUrl()));
+                .findAllBySiteAndPath(site, UrlUtils.removeDomainFromUrl(url, site.getUrl()));
         if (!visitedLinks.isEmpty()) {
             return;
         }
@@ -51,6 +54,7 @@ public class UrlParserTask extends RecursiveAction {
 
         Tuple<Page, String> pageAndError = pageSaver.savePage(url, site);
 
+
         site.setStatusTime(new Date());
         if(pageAndError.second() != null) {
             site.setLastError(pageAndError.second());
@@ -58,23 +62,10 @@ public class UrlParserTask extends RecursiveAction {
         siteRepository.save(site);
 
         if(pageAndError.second() == null) {
+            // todo save lemma and index
             processDocument(pageAndError.first().getContent());
         }
     }
-
-
-    private String removeDomainFromUrl(String url, String domain) {
-        if (domain.endsWith("/")) {
-            domain = StringUtils.removeLastChar(domain);
-        }
-
-        if (url.startsWith(domain)) {
-            String substr = url.substring(domain.length());
-            return substr.isEmpty() ? "/" : substr;
-        }
-        return url;
-    }
-
 
     private void processDocument(String html) {
         Document doc = Jsoup.parse(html);

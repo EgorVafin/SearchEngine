@@ -11,14 +11,16 @@ import searchengine.model.Page;
 import searchengine.model.SiteStatus;
 import searchengine.repository.IndexRepository;
 import searchengine.repository.LemmaRepository;
+import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
+import searchengine.service.parser.IndexSaver;
 import searchengine.service.parser.PageSaver;
 import searchengine.utils.Tuple;
+import searchengine.utils.UrlUtils;
 
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -31,6 +33,8 @@ public class UrlIndexService {
     private final LemmaParser lemmaParser;
     private final LemmaRepository lemmaRepository;
     private final IndexRepository indexRepository;
+    private final PageRepository pageRepository;
+    private final IndexSaver indexSaver;
 
     public void index(String url) throws IOException {
         Optional<Site> siteOpt = sitesList.getSites().stream().filter(s -> url.startsWith(s.getUrl())).findFirst();
@@ -40,46 +44,36 @@ public class UrlIndexService {
 
         searchengine.model.Site siteEntity = findOrCreateSite(siteOpt.get());
 
+        String path = UrlUtils.removeDomainFromUrl(url, siteOpt.get().getUrl());
+
+        Optional<Page> pageOpt = pageRepository.findFirstByPathAndSite(path, siteEntity);
+        pageOpt.ifPresent(this::removePage);
+
         Tuple<Page, String> pageAndError = pageSaver.savePage(url, siteEntity);
 
         if (pageAndError.second() != null) {
             throw new RuntimeException(pageAndError.second());
         }
 
-        String plainText = lemmaParser.clearHtmlTags(pageAndError.first().getContent());
-        Map<String, Integer> lemmas = lemmaParser.parseLemmas(plainText);
-
-        for (Map.Entry<String, Integer> lemmaStat : lemmas.entrySet()) {
-
-            Lemma lemma = processLemma(lemmaStat.getKey(), siteEntity);
-
-            Index index = new Index();
-            index.setPage(pageAndError.first());
-            index.setLemma(lemma);
-            index.setRank(lemmaStat.getValue());
-
-            indexRepository.save(index);
-        }
+        indexSaver.processPage(pageAndError.first());
     }
 
-    private Lemma processLemma(String lemma, searchengine.model.Site site) {
+    private void removePage(Page page) {
+        List<Index> indexList = indexRepository.findAllByPage(page);
 
-        Optional<Lemma> lemmaOpt = lemmaRepository.findFirstByLemmaAndSite(lemma, site);
-        if (lemmaOpt.isPresent()) {
-            Lemma lemmaEntity = lemmaOpt.get();
-            lemmaEntity.setFrequency(lemmaEntity.getFrequency() + 1);
-
-            lemmaRepository.save(lemmaEntity);
-            return lemmaEntity;
+        for (Index index : indexList) {
+            Lemma lemma = index.getLemma();
+            if(lemma.getFrequency() <= 1){
+                indexRepository.delete(index);
+                lemmaRepository.delete(lemma);
+            } else {
+                lemma.setFrequency(lemma.getFrequency() - 1);
+                lemmaRepository.save(lemma);
+                indexRepository.delete(index);
+            }
         }
 
-        Lemma lemmaEntity = new Lemma();
-        lemmaEntity.setSite(site);
-        lemmaEntity.setLemma(lemma);
-        lemmaEntity.setFrequency(1);
-
-        lemmaRepository.save(lemmaEntity);
-        return lemmaEntity;
+        pageRepository.delete(page);
     }
 
     private searchengine.model.Site findOrCreateSite(Site site) {

@@ -48,8 +48,8 @@ public class SitesIndexingServiceImpl implements SitesIndexingService {
         tasks.clear();
         for (searchengine.config.Site site : sitesList.getSites()) {
             SiteParser siteParser = new SiteParser(
-                    site.getUrl(),
                     site.getName(),
+                    site.getUrl(),
                     pageRepository,
                     siteRepository,
                     indexStatus,
