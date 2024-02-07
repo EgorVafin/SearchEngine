@@ -6,13 +6,18 @@ spring:
     username: root
     password: 5AaKk2+S
     url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
+  flyway:
+    enabled: true
+    validate-on-migrate: true
+    locations: classpath:db/migration
+
   jpa:
     generate-ddl: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     show-sql: true
 
 indexing-settings:
@@ -23,3 +28,4 @@ indexing-settings:
       name: Skillbox
     - url: https://www.playback.ru
       name: PlayBack.Ru
+

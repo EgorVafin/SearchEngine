@@ -1,13 +1,9 @@
 package searchengine.model;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import net.bytebuddy.dynamic.loading.InjectionClassLoader;
-import org.hibernate.annotations.Cascade;
-
-import javax.persistence.*;
 
 @Entity
 @Table(name = "lemma")

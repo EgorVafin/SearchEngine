@@ -1,12 +1,13 @@
 package searchengine.model;
 
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.OnDelete;
 
-import javax.persistence.*;
+
 
 //alter table search_engine.page add index (path(100));
 // alter table page
