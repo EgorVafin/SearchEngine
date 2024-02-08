@@ -80,7 +80,7 @@ public class UrlIndexService {
 
         List<searchengine.model.Site> siteList = siteRepository.findByName(site.getName());
         if (!siteList.isEmpty()) {
-            return siteList.get(0);
+            return siteList.getFirst();
         }
 
         searchengine.model.Site siteEntity = new searchengine.model.Site();

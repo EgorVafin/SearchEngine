@@ -20,6 +20,7 @@ public class SiteParser implements Runnable {
     private final SiteRepository siteRepository;
     private final IndexStatus indexStatus;
     private final PageSaver pageSaver;
+    private final IndexSaver indexSaver;
 
 
     @SneakyThrows
@@ -36,7 +37,9 @@ public class SiteParser implements Runnable {
                             indexStatus,
                             pageRepository,
                             siteRepository,
-                            pageSaver
+                            pageSaver,
+                            indexSaver
+
                     )
             );
             while (true) {

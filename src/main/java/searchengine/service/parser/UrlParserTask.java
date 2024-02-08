@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 public class UrlParserTask extends RecursiveAction {
-    private static final int MAX_PAGES_COUNT = 100;
+    private static final int MAX_PAGES_COUNT = 20;
 
     private final String url;
     private final Site site;
@@ -31,11 +31,17 @@ public class UrlParserTask extends RecursiveAction {
     private final PageRepository pageRepository;
     private final SiteRepository siteRepository;
     private final PageSaver pageSaver;
+    private final IndexSaver indexSaver;
 
     @SneakyThrows
     @Override
     protected void compute() {
         if (!indexStatus.isIndexing()) {
+            return;
+        }
+
+        int pagesCount = pageRepository.countBySite(site);
+        if (pagesCount > MAX_PAGES_COUNT) {
             return;
         }
 
@@ -45,15 +51,9 @@ public class UrlParserTask extends RecursiveAction {
             return;
         }
 
-        int pagesCount = pageRepository.countBySite(site);
-        if (pagesCount > MAX_PAGES_COUNT) {
-            return;
-        }
-
-        TimeUnit.MILLISECONDS.sleep(200);
+        TimeUnit.MILLISECONDS.sleep(175);
 
         Tuple<Page, String> pageAndError = pageSaver.savePage(url, site);
-
 
         site.setStatusTime(new Date());
         if(pageAndError.second() != null) {
@@ -62,7 +62,12 @@ public class UrlParserTask extends RecursiveAction {
         siteRepository.save(site);
 
         if(pageAndError.second() == null) {
-            // todo save lemma and index
+            if (pageAndError.second() != null) {
+                throw new RuntimeException(pageAndError.second());
+            }
+
+            indexSaver.processPage(pageAndError.first());
+
             processDocument(pageAndError.first().getContent());
         }
     }
@@ -82,7 +87,8 @@ public class UrlParserTask extends RecursiveAction {
                     indexStatus,
                     pageRepository,
                     siteRepository,
-                    pageSaver);
+                    pageSaver,
+                    indexSaver);
 
             newTask.fork();
         }

@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import searchengine.config.SitesList;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
+import searchengine.service.parser.IndexSaver;
 import searchengine.service.parser.IndexStatus;
 import searchengine.service.parser.PageSaver;
 import searchengine.service.parser.SiteParser;
@@ -23,18 +24,21 @@ public class SitesIndexingServiceImpl implements SitesIndexingService {
     private final List<Future> tasks = new ArrayList<>();
     private final IndexStatus indexStatus = new IndexStatus();
     private final PageSaver pageSaver;
+    private final IndexSaver indexSaver;
 
 
     public SitesIndexingServiceImpl(
             SitesList sitesList,
             SiteRepository siteRepository,
             PageRepository pageRepository,
-            PageSaver pageSaver) {
+            PageSaver pageSaver,
+            IndexSaver indexSaver) {
         this.sitesList = sitesList;
         this.siteRepository = siteRepository;
         this.pageRepository = pageRepository;
         this.pool = Executors.newFixedThreadPool(sitesList.getSites().size());
         this.pageSaver = pageSaver;
+        this.indexSaver = indexSaver;
     }
 
     @Override
@@ -53,7 +57,8 @@ public class SitesIndexingServiceImpl implements SitesIndexingService {
                     pageRepository,
                     siteRepository,
                     indexStatus,
-                    pageSaver);
+                    pageSaver,
+                    indexSaver);
             Future<?> feature = pool.submit(siteParser);
             tasks.add(feature);
         }
