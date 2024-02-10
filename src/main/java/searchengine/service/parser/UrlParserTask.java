@@ -3,6 +3,7 @@ package searchengine.service.parser;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.Value;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 public class UrlParserTask extends RecursiveAction {
-    private static final int MAX_PAGES_COUNT = 20;
+    //@Value("${max.page.count}")
+    private static final int MAX_PAGES_COUNT = 100;
 
     private final String url;
     private final Site site;

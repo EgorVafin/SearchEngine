@@ -1,8 +1,12 @@
 package searchengine.dto.statistics;
 
-import lombok.Data;
+import lombok.*;
+import lombok.experimental.Accessors;
 
-@Data
+//@Accessors(fluent = true, chain = true)
+@AllArgsConstructor
+@Getter
+@Setter
 public class StatisticsResponse {
     private boolean result;
     private StatisticsData statistics;

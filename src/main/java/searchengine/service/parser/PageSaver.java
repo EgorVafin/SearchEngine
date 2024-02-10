@@ -1,6 +1,7 @@
 package searchengine.service.parser;
 
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.jsoup.HttpStatusException;
 import org.springframework.stereotype.Service;
 import searchengine.model.Page;

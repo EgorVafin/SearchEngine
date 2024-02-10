@@ -1,7 +1,12 @@
 package searchengine.controller;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.*;
 import searchengine.dto.index.IndexingResponse;
 import searchengine.dto.statistics.StatisticsResponse;
@@ -14,6 +19,7 @@ import java.io.IOException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
+
 public class ApiController {
     private final StatisticsService statisticsService;
     private final SitesIndexingService sitesIndexingService;
@@ -21,7 +27,9 @@ public class ApiController {
 
     @GetMapping("/statistics")
     public ResponseEntity<StatisticsResponse> statistics() {
-        return ResponseEntity.ok(statisticsService.getStatistics());
+
+        StatisticsResponse statisticsResponse = statisticsService.getStatistics();
+        return ResponseEntity.ok(statisticsResponse);
     }
 
     @GetMapping("/startIndexing")

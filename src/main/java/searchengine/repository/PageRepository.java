@@ -13,6 +13,8 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
 
     List<Page> findAllBySiteAndPath(Site site, String path);
 
+    List<Page> findAllBySite(Site site);
+
     //Optional<Page> findFirstByPath(String path);
     Optional<Page> findFirstByPathAndSite(String path, Site site);
 
