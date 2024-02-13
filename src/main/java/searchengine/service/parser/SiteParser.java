@@ -22,7 +22,6 @@ public class SiteParser implements Runnable {
     private final PageSaver pageSaver;
     private final IndexSaver indexSaver;
 
-
     @SneakyThrows
     public void run() {
         clearDb();
@@ -39,7 +38,6 @@ public class SiteParser implements Runnable {
                             siteRepository,
                             pageSaver,
                             indexSaver
-
                     )
             );
             while (true) {

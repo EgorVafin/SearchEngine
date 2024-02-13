@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpMediaTypeNotAcceptableException;
 import org.springframework.web.bind.annotation.*;
 import searchengine.dto.index.IndexingResponse;
+import searchengine.dto.search.SearchResponse;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.service.SitesIndexingService;
 import searchengine.service.StatisticsService;
@@ -24,6 +25,15 @@ public class ApiController {
     private final StatisticsService statisticsService;
     private final SitesIndexingService sitesIndexingService;
     private final UrlIndexService urlIndexService;
+
+
+//    @GetMapping("/search")
+//    public ResponseEntity<SearchResponse> search() {
+//
+//
+//        SearchResponse searchResponse = new SearchResponse();
+//        return ResponseEntity.ok(searchResponse);
+//    }
 
     @GetMapping("/statistics")
     public ResponseEntity<StatisticsResponse> statistics() {

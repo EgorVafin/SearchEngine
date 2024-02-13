@@ -13,10 +13,7 @@ public interface LemmaRepository extends JpaRepository<Lemma, Integer> {
 
     Optional<Lemma> findFirstByLemmaAndSite(String lemma, Site site);
 
-    Optional<Lemma> findById(Integer integer);
-
     List<Lemma> findAllBySite(Site site);
 
-    @Override
-    void deleteById(Integer integer);
+    Integer countBySite(Site site);
 }
