@@ -30,7 +30,6 @@ public class UrlIndexService {
     private final SiteRepository siteRepository;
     private final SitesList sitesList;
     private final PageSaver pageSaver;
-    private final LemmaParser lemmaParser;
     private final LemmaRepository lemmaRepository;
     private final IndexRepository indexRepository;
     private final PageRepository pageRepository;

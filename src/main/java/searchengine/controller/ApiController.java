@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import searchengine.dto.index.IndexingResponse;
 import searchengine.dto.search.SearchResponse;
 import searchengine.dto.statistics.StatisticsResponse;
+import searchengine.service.SearchService;
 import searchengine.service.SitesIndexingService;
 import searchengine.service.StatisticsService;
 import searchengine.service.UrlIndexService;
@@ -25,15 +26,14 @@ public class ApiController {
     private final StatisticsService statisticsService;
     private final SitesIndexingService sitesIndexingService;
     private final UrlIndexService urlIndexService;
+    private final SearchService searchService;
 
 
-//    @GetMapping("/search")
-//    public ResponseEntity<SearchResponse> search() {
-//
-//
-//        SearchResponse searchResponse = new SearchResponse();
-//        return ResponseEntity.ok(searchResponse);
-//    }
+    @GetMapping("/search")
+    public ResponseEntity<SearchResponse> search(@RequestParam(name = "query") String query) {
+        SearchResponse searchResponse = searchService.search(query);
+        return ResponseEntity.ok(searchResponse);
+    }
 
     @GetMapping("/statistics")
     public ResponseEntity<StatisticsResponse> statistics() {

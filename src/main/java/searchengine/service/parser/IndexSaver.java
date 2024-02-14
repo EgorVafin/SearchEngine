@@ -27,7 +27,6 @@ public class IndexSaver {
         for (Map.Entry<String, Integer> lemmaStat : lemmas.entrySet()) {
 
             Lemma lemma = processLemma(lemmaStat.getKey(), page.getSite());
-
             Index index = new Index();
             index.setPage(page);
             index.setLemma(lemma);
@@ -35,7 +34,6 @@ public class IndexSaver {
 
             indexRepository.save(index);
         }
-
     }
 
     private Lemma processLemma(String lemma, searchengine.model.Site site) {
@@ -57,6 +55,4 @@ public class IndexSaver {
         lemmaRepository.save(lemmaEntity);
         return lemmaEntity;
     }
-
-
 }
