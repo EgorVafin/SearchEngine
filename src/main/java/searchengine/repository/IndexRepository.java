@@ -20,6 +20,11 @@ public interface IndexRepository extends JpaRepository<Index, Integer> {
     @Query(value = "DELETE FROM lemma_index WHERE lemma_id = :lemmaId", nativeQuery = true)
     void deleteByLemmaId(Integer lemmaId);
 
+
+    @Query(value = "select distinct page_id from lemma_index where lemma_id IN (:lemmaId))
+    List<Integer> findIndexByLemmaId(List<Integer> lemmaId);
+
+
 //    @Query(value = "SELECT max(id) FROM order_line where order_id = :orderId", nativeQuery = true)
 //    public Long findMaxOrderLineIdInOrder(Long orderId);
 }

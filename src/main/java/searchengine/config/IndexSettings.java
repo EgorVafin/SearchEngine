@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 @Component
 @ConfigurationProperties(prefix = "indexing-settings")
-public class SitesList {
+public class IndexSettings {
     private List<Site> sites;
+    private int maxFrequency;
 }

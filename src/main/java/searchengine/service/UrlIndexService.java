@@ -2,9 +2,8 @@ package searchengine.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import searchengine.LemmaParser;
 import searchengine.config.Site;
-import searchengine.config.SitesList;
+import searchengine.config.IndexSettings;
 import searchengine.model.Index;
 import searchengine.model.Lemma;
 import searchengine.model.Page;
@@ -28,7 +27,7 @@ import java.util.Optional;
 public class UrlIndexService {
 
     private final SiteRepository siteRepository;
-    private final SitesList sitesList;
+    private final IndexSettings indexSettings;
     private final PageSaver pageSaver;
     private final LemmaRepository lemmaRepository;
     private final IndexRepository indexRepository;
@@ -36,7 +35,7 @@ public class UrlIndexService {
     private final IndexSaver indexSaver;
 
     public void index(String url) throws IOException {
-        Optional<Site> siteOpt = sitesList.getSites().stream().filter(s -> url.startsWith(s.getUrl())).findFirst();
+        Optional<Site> siteOpt = indexSettings.getSites().stream().filter(s -> url.startsWith(s.getUrl())).findFirst();
         if (siteOpt.isEmpty()) {
             throw new RuntimeException("Данная страница находится за пределами сайтов,\n" + "указанных в конфигурационном файле");
         }

@@ -1,7 +1,7 @@
 package searchengine.service;
 
 import org.springframework.stereotype.Service;
-import searchengine.config.SitesList;
+import searchengine.config.IndexSettings;
 import searchengine.repository.PageRepository;
 import searchengine.repository.SiteRepository;
 import searchengine.service.parser.IndexSaver;
@@ -17,7 +17,7 @@ import java.util.concurrent.Future;
 
 @Service
 public class SitesIndexingServiceImpl implements SitesIndexingService {
-    private final SitesList sitesList;
+    private final IndexSettings indexSettings;
     private final SiteRepository siteRepository;
     private final PageRepository pageRepository;
     private final ExecutorService pool;
@@ -28,15 +28,15 @@ public class SitesIndexingServiceImpl implements SitesIndexingService {
 
 
     public SitesIndexingServiceImpl(
-            SitesList sitesList,
+            IndexSettings indexSettings,
             SiteRepository siteRepository,
             PageRepository pageRepository,
             PageSaver pageSaver,
             IndexSaver indexSaver) {
-        this.sitesList = sitesList;
+        this.indexSettings = indexSettings;
         this.siteRepository = siteRepository;
         this.pageRepository = pageRepository;
-        this.pool = Executors.newFixedThreadPool(sitesList.getSites().size());
+        this.pool = Executors.newFixedThreadPool(indexSettings.getSites().size());
         this.pageSaver = pageSaver;
         this.indexSaver = indexSaver;
     }
@@ -50,7 +50,7 @@ public class SitesIndexingServiceImpl implements SitesIndexingService {
     public void index() {
         indexStatus.setIndexing(true);
         tasks.clear();
-        for (searchengine.config.Site site : sitesList.getSites()) {
+        for (searchengine.config.Site site : indexSettings.getSites()) {
             SiteParser siteParser = new SiteParser(
                     site.getName(),
                     site.getUrl(),
