@@ -15,16 +15,12 @@ public interface IndexRepository extends JpaRepository<Index, Integer> {
 
     List<Index> findAllByPage(Page page);
 
-    //native query delete index by lemma_id
-
-    @Query(value = "DELETE FROM lemma_index WHERE lemma_id = :lemmaId", nativeQuery = true)
+    @Query(nativeQuery = true, value = "DELETE FROM lemma_index WHERE lemma_id = :lemmaId")
     void deleteByLemmaId(Integer lemmaId);
 
+    @Query(nativeQuery = true, value = "select distinct page_id from lemma_index where lemma_id in :lemmaIdList")
+    List<Integer> findIndexByLemmaIdList(List<Integer> lemmaIdList);
 
-    @Query(value = "select distinct page_id from lemma_index where lemma_id IN (:lemmaId))
-    List<Integer> findIndexByLemmaId(List<Integer> lemmaId);
+    Optional<Index> findById(Integer id);
 
-
-//    @Query(value = "SELECT max(id) FROM order_line where order_id = :orderId", nativeQuery = true)
-//    public Long findMaxOrderLineIdInOrder(Long orderId);
 }

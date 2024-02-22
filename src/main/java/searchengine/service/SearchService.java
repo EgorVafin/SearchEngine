@@ -11,7 +11,7 @@ import searchengine.model.Page;
 import searchengine.model.Site;
 import searchengine.repository.IndexRepository;
 import searchengine.repository.LemmaRepository;
-import searchengine.repository.SiteRepository;
+import searchengine.repository.PageRepository;
 import searchengine.utils.Tuple;
 
 import java.util.*;
@@ -23,6 +23,7 @@ public class SearchService {
     private final LemmaParser lemmaParser;
     private final LemmaRepository lemmaRepository;
     private final IndexRepository indexRepository;
+    private final PageRepository pageRepository;
 
     public SearchResponse search(String query, Site site, int offset, int limit) {
 
@@ -56,7 +57,9 @@ public class SearchService {
                 .sorted(Comparator.comparingInt(Tuple::second))
                 .toList();
 
-        List<Page> pages = lemmaPages(finalLemmas.stream().map(Tuple::first).toList());
+        //List<Integer> pagesIdList = new ArrayList<>();
+        List<Page> pages = lemmaPages(finalLemmas.stream().map(Tuple::first).toList(), site);
+
 
         List<SearchData> searchDataList = new ArrayList<>();
 
@@ -64,22 +67,50 @@ public class SearchService {
     }
 
 
-    private List<Page> lemmaPages(List<String> lemmas) {
+    private List<Page> lemmaPages(List<String> lemmas, Site site) {
 
+        List<Page> allPagesLemmaList = new ArrayList<>();
+        List<Integer> intersectionPageIdList = new ArrayList<>();
+
+        for (String lemma : lemmas) {
+
+
+            List<Page> pageForOneLemmaList = pagesForLemmas(lemma, site);
+
+            intersectionPageIdList = pageForOneLemmaList.stream()
+                    .map(p -> p.getId()).toList();
+
+
+            List<Page> previousPageList = pageForOneLemmaList.stream().toList();
+
+
+        }
 
 
         return null;
     }
 
-    private List<Page> pagesForLemmas(String lemma, Site site){
-        List<Lemma> lemmas = lemmasForName(lemma, site);
+    private List<Page> pagesForLemmas(String lemma, Site site) {
+        List<Lemma> lemmas = lemmasForName(lemma, site); // из слова нашли список лемм
+
+        List<Integer> lemmaIdList = lemmas.stream().map(Lemma::getId).toList(); // из списка лемм сделали список lemmaId
 
 
-        indexRepository.findAllByLemma(le)
+        List<Integer> pageIdList = indexRepository.findIndexByLemmaIdList(lemmaIdList); // по списку lemmaId находим список pageId
+
+        List<Page> pagesForOneLemma = new ArrayList<>();
+
+        for (Integer pageId : pageIdList) {
+            Optional<Page> optionalPage = pageRepository.findPageById(pageId);
+            optionalPage.ifPresent(pagesForOneLemma::add);
+        }
+
+
+        return pagesForOneLemma;
     }
 
-    private List<Lemma> lemmasForName(String lemma, Site site){
-        if(site == null){
+    private List<Lemma> lemmasForName(String lemma, Site site) {
+        if (site == null) {
             return lemmaRepository.findAllByLemma(lemma);
         }
         return lemmaRepository.findAllByLemmaAndSite(lemma, site);

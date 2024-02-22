@@ -1,6 +1,7 @@
 package searchengine.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import searchengine.model.Page;
 import searchengine.model.Site;
@@ -16,6 +17,11 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
     Optional<Page> findFirstByPathAndSite(String path, Site site);
 
     Integer countBySite(Site site);
+
+    Optional<Page> findPageById(Integer id);
+
+//    @Query(nativeQuery = true, value = "select id from page where id in :pageIdList")
+//    List<Page> findPageByPageIdList(List<Integer> pageIdList);
 
 
 }
