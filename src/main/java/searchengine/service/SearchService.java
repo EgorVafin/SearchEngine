@@ -15,6 +15,7 @@ import searchengine.repository.PageRepository;
 import searchengine.utils.Tuple;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -57,62 +58,72 @@ public class SearchService {
                 .sorted(Comparator.comparingInt(Tuple::second))
                 .toList();
 
-        //List<Integer> pagesIdList = new ArrayList<>();
-        List<Page> pages = lemmaPages(finalLemmas.stream().map(Tuple::first).toList(), site);
-
-
-        List<SearchData> searchDataList = new ArrayList<>();
-
-        return new SearchResponse(true, 10, searchDataList);
-    }
-
-
-    private List<Page> lemmaPages(List<String> lemmas, Site site) {
-
-        List<Page> allPagesLemmaList = new ArrayList<>();
-        List<Integer> intersectionPageIdList = new ArrayList<>();
-
-        for (String lemma : lemmas) {
-
-
-            List<Page> pageForOneLemmaList = pagesForLemmas(lemma, site);
-
-            intersectionPageIdList = pageForOneLemmaList.stream()
-                    .map(p -> p.getId()).toList();
-
-
-            List<Page> previousPageList = pageForOneLemmaList.stream().toList();
-
-
+        List<String> finalLemmasStings = finalLemmas.stream().map(Tuple::first).toList();
+        Set<Integer> pages = lemmaPages(finalLemmasStings, site);
+        if (pages.isEmpty()) {
+            return new SearchResponse(true, 0, new ArrayList<>());
         }
 
+        List<IndexRepository.RelevanceObj> pageRelevances = indexRepository.relevance(pages, finalLemmasStings);
 
-        return null;
+        double maxRelevance = pageRelevances.stream()
+                .max(Comparator.comparing(IndexRepository.RelevanceObj::getPageRelevance))
+                .get()
+                .getPageRelevance();
+
+        List<Tuple<Integer, Double>> relRelevance = pageRelevances.stream()
+                .map(rel -> new Tuple<Integer, Double>(rel.getPageId(), rel.getPageRelevance() / maxRelevance))
+                .sorted(Comparator.comparing(Tuple::second))
+                .skip(offset)
+                .limit(limit)
+                .toList();
+
+        List<Tuple<Page, Double>> pageObjRelevances = relRelevance.stream()
+                .map(t -> new Tuple<Page, Double>(pageRepository.findById(t.first()).get(), t.second()))
+                .toList();
+        List<SearchData> pagesResponse = pageObjRelevances.stream()
+                .map(t -> new SearchData()
+                        .setSite(t.first().getSite().getUrl())
+                        .setSiteName(t.first().getSite().getName())
+                        .setUri(t.first().getPath())
+                        .setTitle("")
+                        .setRelevance(t.second())
+                        .setSnippet("")
+                )
+                .toList();
+
+        return new SearchResponse(true, pagesResponse.size(), pagesResponse);
     }
 
-    private List<Page> pagesForLemmas(String lemma, Site site) {
-        List<Lemma> lemmas = lemmasForName(lemma, site); // из слова нашли список лемм
+    private Set<Integer> lemmaPages(List<String> lemmas, Site site) {
 
-        List<Integer> lemmaIdList = lemmas.stream().map(Lemma::getId).toList(); // из списка лемм сделали список lemmaId
-
-
-        List<Integer> pageIdList = indexRepository.findIndexByLemmaIdList(lemmaIdList); // по списку lemmaId находим список pageId
-
-        List<Page> pagesForOneLemma = new ArrayList<>();
-
-        for (Integer pageId : pageIdList) {
-            Optional<Page> optionalPage = pageRepository.findPageById(pageId);
-            optionalPage.ifPresent(pagesForOneLemma::add);
+        if (lemmas.isEmpty()) {
+            return Set.of();
         }
 
+        Set<Integer> resultPages = pagesForLemmas(lemmas.getFirst(), site);
+        if (lemmas.size() == 1) {
+            return resultPages;
+        }
 
-        return pagesForOneLemma;
+        for (String lemma : lemmas.subList(1, lemmas.size())) {
+            Set<Integer> pages = pagesForLemmas(lemma, site);
+            resultPages.retainAll(pages);
+
+            if (resultPages.isEmpty()) {
+                return resultPages;
+            }
+        }
+        return resultPages;
     }
 
-    private List<Lemma> lemmasForName(String lemma, Site site) {
+    private Set<Integer> pagesForLemmas(String lemma, Site site) {
+
         if (site == null) {
-            return lemmaRepository.findAllByLemma(lemma);
+            return indexRepository.pagesForLemma(lemma);
+        } else {
+            return indexRepository.pagesForLemmaAndSite(lemma, site.getId());
         }
-        return lemmaRepository.findAllByLemmaAndSite(lemma, site);
     }
+
 }
