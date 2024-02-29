@@ -12,10 +12,10 @@ import searchengine.model.Site;
 import searchengine.repository.IndexRepository;
 import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
+import searchengine.service.snippet.Snippet;
 import searchengine.utils.Tuple;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 @Component
 @RequiredArgsConstructor
@@ -25,6 +25,7 @@ public class SearchService {
     private final LemmaRepository lemmaRepository;
     private final IndexRepository indexRepository;
     private final PageRepository pageRepository;
+    private final Snippet snippet;
 
     public SearchResponse search(String query, Site site, int offset, int limit) {
 
@@ -81,14 +82,15 @@ public class SearchService {
         List<Tuple<Page, Double>> pageObjRelevances = relRelevance.stream()
                 .map(t -> new Tuple<Page, Double>(pageRepository.findById(t.first()).get(), t.second()))
                 .toList();
+
         List<SearchData> pagesResponse = pageObjRelevances.stream()
                 .map(t -> new SearchData()
                         .setSite(t.first().getSite().getUrl())
                         .setSiteName(t.first().getSite().getName())
                         .setUri(t.first().getPath())
-                        .setTitle("")
+                        .setTitle(snippet.createTitle(t.first().getContent()))
                         .setRelevance(t.second())
-                        .setSnippet("")
+                        .setSnippet(snippet.createSnippet(t.first().getContent(), finalLemmas))
                 )
                 .toList();
 
