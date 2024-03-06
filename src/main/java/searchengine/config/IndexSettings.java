@@ -14,4 +14,5 @@ import java.util.List;
 public class IndexSettings {
     private List<Site> sites;
     private int maxFrequency;
+    private long maxPages;
 }

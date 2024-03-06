@@ -6,7 +6,9 @@ import lombok.SneakyThrows;
 import lombok.Value;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
+import searchengine.config.IndexSettings;
 import searchengine.model.Page;
 import searchengine.model.Site;
 import searchengine.repository.PageRepository;
@@ -24,9 +26,8 @@ import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
 public class UrlParserTask extends RecursiveAction {
-    //@Value("${max.page.count}")
-    private static final int MAX_PAGES_COUNT = 300;
 
+    public static final int MAX_PAGES_COUNT = 500;
     private final String url;
     private final Site site;
     private final IndexStatus indexStatus;

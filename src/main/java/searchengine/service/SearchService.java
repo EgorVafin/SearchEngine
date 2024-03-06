@@ -6,9 +6,10 @@ import searchengine.LemmaParser;
 import searchengine.config.IndexSettings;
 import searchengine.dto.search.SearchData;
 import searchengine.dto.search.SearchResponse;
-import searchengine.model.Lemma;
+
 import searchengine.model.Page;
 import searchengine.model.Site;
+import searchengine.model.Lemma;
 import searchengine.repository.IndexRepository;
 import searchengine.repository.LemmaRepository;
 import searchengine.repository.PageRepository;
@@ -90,9 +91,9 @@ public class SearchService {
                         .setUri(t.first().getPath())
                         .setTitle(snippet.createTitle(t.first().getContent()))
                         .setRelevance(t.second())
-                        .setSnippet(snippet.createSnippet(t.first().getContent(), finalLemmas))
-                )
-                .toList();
+                        .setSnippet(snippet.createSnippet(t.first().getContent(), lemmasMap.keySet()))
+                ).toList();
+
 
         return new SearchResponse(true, pagesResponse.size(), pagesResponse);
     }

@@ -12,6 +12,7 @@ import searchengine.utils.Tuple;
 import searchengine.utils.UrlUtils;
 
 import java.io.IOException;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,8 +49,14 @@ public class PageSaver {
         page.setPath(UrlUtils.removeDomainFromUrl(url, site.getUrl()));
         page.setContent(html);
         page.setCode(STATUS_CODE_SUCCESS);
-        pageRepository.save(page);
 
+        List<Page> visitedLinks = pageRepository
+                .findAllBySiteAndPath(site, UrlUtils.removeDomainFromUrl(url, site.getUrl()));
+        if (!visitedLinks.isEmpty()) {
+            return new Tuple<>(visitedLinks.getFirst(), null);
+        }
+
+        pageRepository.save(page);
         return new Tuple<>(page, null);
     }
 

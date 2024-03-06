@@ -7,10 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Component
 //@RequiredArgsConstructor
@@ -21,6 +17,15 @@ public class LemmaParser {
 
     public LemmaParser() throws IOException {
         luceneMorph = new RussianLuceneMorphology();
+    }
+
+    public String getNormalLemma(String word) {
+        if (word.isEmpty()) {
+            return "";
+        } else {
+            return luceneMorph.getNormalForms(word).getFirst();
+        }
+
     }
 
     public String clearHtmlTags(String html) {
@@ -61,12 +66,10 @@ public class LemmaParser {
                 .anyMatch(pName -> morphInfo.toUpperCase().contains(pName));
     }
 
-    private String[] arrayContainsRussianWords(String text) {
+    public String[] arrayContainsRussianWords(String text) {
         return text.toLowerCase(Locale.ROOT)
                 .replaceAll("([^а-я\\s])", " ")
                 .trim()
                 .split("\\s+");
     }
-
-
 }
