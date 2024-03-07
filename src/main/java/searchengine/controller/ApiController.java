@@ -1,6 +1,7 @@
 package searchengine.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import searchengine.dto.index.IndexingResponse;
@@ -14,6 +15,7 @@ import searchengine.service.StatisticsService;
 import searchengine.service.UrlIndexService;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,16 +29,23 @@ public class ApiController {
     private final SiteRepository siteRepository;
 
     @GetMapping("/search")
-    public ResponseEntity<SearchResponse> search(
+    public ResponseEntity search(
             @RequestParam(name = "query", required = true) String query,
             @RequestParam(name = "site", required = false) String siteUrl,
             @RequestParam(name = "offset", required = false, defaultValue = "0") int offset,
             @RequestParam(name = "limit", required = false, defaultValue = "20") int limit) {
 
-        Site site = siteRepository.findByUrl(siteUrl).orElseThrow(() -> new RuntimeException("Site not found"));
-
-        SearchResponse searchResponse = searchService.search(query, site, offset, limit);
-        return ResponseEntity.ok(searchResponse);
+        if (siteUrl != null) {
+            Optional<Site> siteOpt = siteRepository.findByUrl(siteUrl);
+            if (siteOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Site " + siteUrl + " not found");
+            }
+            SearchResponse searchResponse = searchService.search(query, siteOpt.get(), offset, limit);
+            return ResponseEntity.ok(searchResponse);
+        } else {
+            SearchResponse searchResponse = searchService.search(query, null, offset, limit);
+            return ResponseEntity.ok(searchResponse);
+        }
     }
 
     @GetMapping("/statistics")

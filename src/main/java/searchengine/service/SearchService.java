@@ -17,6 +17,7 @@ import searchengine.service.snippet.Snippet;
 import searchengine.utils.Tuple;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -73,9 +74,10 @@ public class SearchService {
                 .get()
                 .getPageRelevance();
 
+
         List<Tuple<Integer, Double>> relRelevance = pageRelevances.stream()
                 .map(rel -> new Tuple<Integer, Double>(rel.getPageId(), rel.getPageRelevance() / maxRelevance))
-                .sorted(Comparator.comparing(Tuple::second))
+                .sorted((t1, t2) -> Double.compare(t2.second(), t1.second()))
                 .skip(offset)
                 .limit(limit)
                 .toList();
@@ -84,7 +86,8 @@ public class SearchService {
                 .map(t -> new Tuple<Page, Double>(pageRepository.findById(t.first()).get(), t.second()))
                 .toList();
 
-        List<SearchData> pagesResponse = pageObjRelevances.stream()
+
+        List<SearchData> pagesResponse = (List<SearchData>) pageObjRelevances.stream()
                 .map(t -> new SearchData()
                         .setSite(t.first().getSite().getUrl())
                         .setSiteName(t.first().getSite().getName())
@@ -92,8 +95,8 @@ public class SearchService {
                         .setTitle(snippet.createTitle(t.first().getContent()))
                         .setRelevance(t.second())
                         .setSnippet(snippet.createSnippet(t.first().getContent(), lemmasMap.keySet()))
-                ).toList();
-
+                )
+                .toList();
 
         return new SearchResponse(true, pagesResponse.size(), pagesResponse);
     }

@@ -40,7 +40,6 @@ public class Snippet {
                 )
                 .toList();
 
-
         Map<Integer, Boolean> sentenceHasSearchLemmas = new TreeMap<>();
         for (int i = 0; i < sentenceLemmas.size(); i++) {
             boolean sentenceHasSearchLemma = sentenceLemmas.get(i).getWords().stream().anyMatch(lemma -> lemmas.contains(lemma));

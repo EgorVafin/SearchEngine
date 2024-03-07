@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class UrlParserTask extends RecursiveAction {
 
-    public static final int MAX_PAGES_COUNT = 500;
+    public static final int MAX_PAGES_COUNT = 1500;
     private final String url;
     private final Site site;
     private final IndexStatus indexStatus;
