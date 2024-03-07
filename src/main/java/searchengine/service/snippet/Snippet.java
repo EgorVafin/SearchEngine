@@ -1,19 +1,15 @@
 package searchengine.service.snippet;
 
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.apache.lucene.store.SingleInstanceLockFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
 import searchengine.LemmaParser;
-import searchengine.utils.Tuple;
 
 import java.util.*;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 @Component
 @Data

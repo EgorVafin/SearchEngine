@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.*;
 
 @Component
-//@RequiredArgsConstructor
 public class LemmaParser {
     private final LuceneMorphology luceneMorph;
     private static final String RUSSIAN_WORD_REGEX = "[а-яА-Я]+";

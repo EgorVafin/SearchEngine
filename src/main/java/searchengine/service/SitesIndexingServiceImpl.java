@@ -26,7 +26,6 @@ public class SitesIndexingServiceImpl implements SitesIndexingService {
     private final PageSaver pageSaver;
     private final IndexSaver indexSaver;
 
-
     public SitesIndexingServiceImpl(
             IndexSettings indexSettings,
             SiteRepository siteRepository,

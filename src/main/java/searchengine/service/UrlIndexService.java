@@ -70,7 +70,6 @@ public class UrlIndexService {
                 indexRepository.delete(index);
             }
         }
-
         pageRepository.delete(page);
     }
 
@@ -80,7 +79,6 @@ public class UrlIndexService {
         if (!siteList.isEmpty()) {
             return siteList.getFirst();
         }
-
         searchengine.model.Site siteEntity = new searchengine.model.Site();
         siteEntity.setUrl(site.getUrl());
         siteEntity.setName(site.getName());

@@ -19,9 +19,4 @@ public interface PageRepository extends JpaRepository<Page, Integer> {
     Integer countBySite(Site site);
 
     Optional<Page> findPageById(Integer id);
-
-//    @Query(nativeQuery = true, value = "select id from page where id in :pageIdList")
-//    List<Page> findPageByPageIdList(List<Integer> pageIdList);
-
-
 }

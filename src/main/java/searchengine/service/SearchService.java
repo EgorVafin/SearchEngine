@@ -131,5 +131,4 @@ public class SearchService {
             return indexRepository.pagesForLemmaAndSite(lemma, site.getId());
         }
     }
-
 }

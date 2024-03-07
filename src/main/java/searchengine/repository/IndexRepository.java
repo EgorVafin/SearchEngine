@@ -16,7 +16,6 @@ public interface IndexRepository extends JpaRepository<Index, Integer> {
 
     List<Index> findAllByPage(Page page);
 
-
     @Query(nativeQuery = true, value = "select distinct page_id from lemma_index where lemma_id in :lemmaIdList")
     List<Integer> findIndexByLemmaIdList(List<Integer> lemmaIdList);
 
@@ -41,6 +40,4 @@ public interface IndexRepository extends JpaRepository<Index, Integer> {
         int getPageId();
         double getPageRelevance();
     }
-
-
 }
