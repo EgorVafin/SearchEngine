@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+
+  search-engine:
+    restart: unless-stopped
+    image: search-engine
+    build:
+      dockerfile: Dockerfile
+    container_name: search-engine
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    depends_on:
+      - mysql
+
+  mysql:
+    container_name: mysql
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: search_engine
+      MYSQL_USER: search_engine
+      MYSQL_PASSWORD: 5AaKk2+S
+    volumes:
+      - ./mysql:/var/lib/mysql/
+    ports:
+      - "3306:3306"
+
+

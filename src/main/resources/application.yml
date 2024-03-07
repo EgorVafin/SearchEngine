@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    username: root
+    username: search_engine
     password: 5AaKk2+S
-    url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mysql:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
   flyway:
     enabled: true
     validate-on-migrate: true
