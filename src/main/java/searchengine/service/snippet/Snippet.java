@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
-import searchengine.LemmaParser;
+import searchengine.utils.LemmaParser;
 
 import java.util.*;
 import java.util.stream.IntStream;

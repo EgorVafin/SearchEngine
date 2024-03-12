@@ -2,7 +2,7 @@ package searchengine.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import searchengine.LemmaParser;
+import searchengine.utils.LemmaParser;
 import searchengine.config.IndexSettings;
 import searchengine.dto.search.SearchData;
 import searchengine.dto.search.SearchResponse;
@@ -17,7 +17,6 @@ import searchengine.service.snippet.Snippet;
 import searchengine.utils.Tuple;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor

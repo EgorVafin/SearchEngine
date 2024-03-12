@@ -2,8 +2,7 @@ package searchengine.service.parser;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import searchengine.LemmaParser;
+import searchengine.utils.LemmaParser;
 import searchengine.model.Index;
 import searchengine.model.Lemma;
 import searchengine.model.Page;

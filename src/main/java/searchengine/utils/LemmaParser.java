@@ -1,4 +1,4 @@
-package searchengine;
+package searchengine.utils;
 
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;

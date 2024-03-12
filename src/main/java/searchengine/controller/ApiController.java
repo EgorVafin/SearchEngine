@@ -1,12 +1,13 @@
 package searchengine.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import searchengine.dto.index.IndexPageRequestDto;
 import searchengine.dto.index.IndexingResponse;
 import searchengine.dto.search.SearchResponse;
 import searchengine.dto.statistics.StatisticsResponse;
+import searchengine.exception.NotFoundHttpException;
 import searchengine.model.Site;
 import searchengine.repository.SiteRepository;
 import searchengine.service.SearchService;
@@ -29,7 +30,7 @@ public class ApiController {
     private final SiteRepository siteRepository;
 
     @GetMapping("/search")
-    public ResponseEntity search(
+    public SearchResponse search(
             @RequestParam(name = "query", required = true) String query,
             @RequestParam(name = "site", required = false) String siteUrl,
             @RequestParam(name = "offset", required = false, defaultValue = "0") int offset,
@@ -38,41 +39,37 @@ public class ApiController {
         if (siteUrl != null) {
             Optional<Site> siteOpt = siteRepository.findByUrl(siteUrl);
             if (siteOpt.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Site " + siteUrl + " not found");
+                throw new NotFoundHttpException("Site " + siteUrl + " not found");
             }
-            SearchResponse searchResponse = searchService.search(query, siteOpt.get(), offset, limit);
-            return ResponseEntity.ok(searchResponse);
+            return searchService.search(query, siteOpt.get(), offset, limit);
         } else {
-            SearchResponse searchResponse = searchService.search(query, null, offset, limit);
-            return ResponseEntity.ok(searchResponse);
+            return searchService.search(query, null, offset, limit);
         }
     }
 
     @GetMapping("/statistics")
-    public ResponseEntity<StatisticsResponse> statistics() {
-
-        StatisticsResponse statisticsResponse = statisticsService.getStatistics();
-        return ResponseEntity.ok(statisticsResponse);
+    public StatisticsResponse statistics() {
+        return statisticsService.getStatistics();
     }
 
     @GetMapping("/startIndexing")
-    public ResponseEntity<IndexingResponse> startIndexing() {
+    public IndexingResponse startIndexing() {
         if (sitesIndexingService.isIndexStarted()) {
-            return ResponseEntity.ok(IndexingResponse.error("Индексация уже запущена"));
+            return IndexingResponse.error("Индексация уже запущена");
         }
         sitesIndexingService.index();
 
-        return ResponseEntity.ok(IndexingResponse.success());
+        return IndexingResponse.success();
     }
 
     @GetMapping("/stopIndexing")
-    public ResponseEntity<IndexingResponse> stopIndexing() {
+    public IndexingResponse stopIndexing() {
         if (!sitesIndexingService.isIndexStarted()) {
-            return ResponseEntity.ok(IndexingResponse.error("Индексация не запущена"));
+            return IndexingResponse.error("Индексация не запущена");
         }
         sitesIndexingService.stopIndex();
 
-        return ResponseEntity.ok(IndexingResponse.success());
+        return IndexingResponse.success();
     }
 
     @PostMapping("/indexPage")
